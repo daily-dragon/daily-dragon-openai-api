@@ -1,0 +1,9 @@
+take these words: ${words}, create ${n} sentences with them in ${targetLanguage}.
+return the ${targetLanguage} sentences only and enclose the corresponding ${targetLanguage} word in triangular brackets.
+Return dictionary as json with such format without json word in header:
+{
+  "sentences": {
+    "original_word1": "sentence1 in targetLanguage with <original_word1_translated>",
+    ...
+  }
+}
