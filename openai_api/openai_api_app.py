@@ -14,7 +14,19 @@ class WordsList(BaseModel):
 
 @app.post("/daily-dragon/practice/sentences")
 def create_practice_sentences(words_list: WordsList):
-    sentences = openai_service.get_sentences_for_translation(words_list.words)
-    return {
-        "sentences": json.dumps(sentences)
-    }
+    return openai_service.get_sentences_for_translation(words_list.words)
+
+
+class TranslationItem(BaseModel):
+    word: str
+    sentence: str
+    translation: str
+
+
+class SentenceTranslationsToEvaluate(BaseModel):
+    translations: list[TranslationItem]
+
+
+@app.post("/daily-dragon/practice/evaluate-translations")
+def evaluate_translations(translations: SentenceTranslationsToEvaluate):
+    return openai_service.evaluate_translations(translations)
