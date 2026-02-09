@@ -9,3 +9,5 @@ python-dotenv
 
 starlette
 fastapi-cognito
+
+pytest
