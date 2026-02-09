@@ -1,0 +1,14 @@
+name: Build and Deploy Daily Dragon OpenAI API
+on: [push]
+jobs:
+  build-vocabulary-api:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.13
+      - name: Install requirements
+        run: pip install -r requirements.txt
+      - name: Run unit tests
+        run: pytest --cov=.

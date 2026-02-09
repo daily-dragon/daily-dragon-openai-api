@@ -1,0 +1,45 @@
+@baseUrl = http://localhost:8000
+
+### Generate sentences
+POST {{baseUrl}}/daily-dragon/practice/sentences
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "words": ["作者", "如何", "记得", "错误", "低音"]
+}
+
+### Evaluate the translations
+POST {{baseUrl}}/daily-dragon/practice/evaluate-translations
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "translations": [
+    {
+      "word": "喜欢",
+      "sentence": "I like this book.",
+      "translation": "我喜欢这本书"
+    },
+    {
+      "word": "喝",
+      "sentence": "She is drinking tea.",
+      "translation": "她在喝茶"
+    },
+    {
+      "word": "学",
+      "sentence": "We are learning Chinese.",
+      "translation": "我们在学中文"
+    },
+    {
+      "word": "完成",
+      "sentence": "He finished his work.",
+      "translation": "他做工作"
+    },
+    {
+      "word": "等",
+      "sentence": "They are waiting for the bus.",
+      "translation": "他们看公共汽车"
+    }
+  ]
+}

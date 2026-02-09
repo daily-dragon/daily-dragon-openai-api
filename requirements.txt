@@ -1,0 +1,14 @@
+mangum
+fastapi
+uvicorn
+
+pydantic
+openai
+
+python-dotenv
+
+starlette
+fastapi-cognito
+
+pytest
+pytest-cov
