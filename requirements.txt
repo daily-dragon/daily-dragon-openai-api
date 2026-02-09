@@ -11,3 +11,4 @@ starlette
 fastapi-cognito
 
 pytest
+pytest-cov
