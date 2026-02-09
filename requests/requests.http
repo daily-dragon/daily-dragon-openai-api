@@ -4,7 +4,7 @@ POST {{baseUrl}}/daily-dragon/practice/sentences
 Content-Type: application/json
 
 {
-  "words": ["苹果", "学习", "猫", "城市", "快乐"]
+  "words": ["作者", "如何", "记得", "错误", "低音"]
 }
 
 ### Evaluate the translations

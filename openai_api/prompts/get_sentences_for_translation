@@ -1,9 +1,12 @@
-take these words: ${words}, create ${n} sentences with them in ${targetLanguage}.
-return the ${targetLanguage} sentences only and enclose the corresponding ${targetLanguage} word in triangular brackets.
-Return dictionary as json with such format without json word in header:
+Using only common, neutral, everyday language, create ${n} short, natural sentences in ${targetLanguage} using these words: ${words}.
+Each sentence should use one target word once, in a typical, high-frequency structure suitable for learners.
+Return only ${targetLanguage} sentences.
+Enclose the translated target word in < >.
+Return a JSON dictionary exactly in this format (no header, no extra text):
+
 {
   "sentences": {
-    "original_word1": "sentence1 in targetLanguage with <original_word1_translated>",
+    "original_word1": "sentence in ${targetLanguage} with <translated_word>",
     ...
   }
 }
