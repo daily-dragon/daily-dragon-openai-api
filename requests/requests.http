@@ -1,6 +1,8 @@
 @baseUrl = http://localhost:8000
 
+### Generate sentences
 POST {{baseUrl}}/daily-dragon/practice/sentences
+Authorization: Bearer <token>
 Content-Type: application/json
 
 {
@@ -9,6 +11,7 @@ Content-Type: application/json
 
 ### Evaluate the translations
 POST {{baseUrl}}/daily-dragon/practice/evaluate-translations
+Authorization: Bearer <token>
 Content-Type: application/json
 
 {

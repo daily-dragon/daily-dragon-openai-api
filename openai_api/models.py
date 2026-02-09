@@ -16,6 +16,7 @@ class TranslationEvaluationItem(BaseModel):
     target_word: str
     word_used: str
     feedback: str
+    correct_sentence: str
     score: int
 
 class TranslationEvaluationResponse(BaseModel):

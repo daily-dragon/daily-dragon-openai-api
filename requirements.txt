@@ -6,3 +6,6 @@ pydantic
 openai
 
 python-dotenv
+
+starlette
+fastapi-cognito
