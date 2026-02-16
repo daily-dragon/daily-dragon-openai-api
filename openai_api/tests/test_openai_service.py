@@ -3,8 +3,8 @@
 import pytest
 from unittest.mock import patch, MagicMock, mock_open
 
-from models import SentencesResponse, SentenceItem, TranslationEvaluationResponse, TranslationEvaluationItem
-from openai_api_app import SentenceTranslationsToEvaluate, TranslationItem
+from models import SentencesResponse, SentenceItem, TranslationEvaluationResponse, TranslationEvaluationItem, \
+    SentenceTranslationsToEvaluate, TranslationItem
 from openai_service import send_prompt, get_sentences_for_translation, evaluate_translations
 
 

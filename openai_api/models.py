@@ -19,5 +19,16 @@ class TranslationEvaluationItem(BaseModel):
     correct_sentence: str
     score: int
 
+
 class TranslationEvaluationResponse(BaseModel):
     evaluations: list[TranslationEvaluationItem]
+
+
+class TranslationItem(BaseModel):
+    word: str
+    sentence: str
+    translation: str
+
+
+class SentenceTranslationsToEvaluate(BaseModel):
+    translations: list[TranslationItem]

@@ -4,6 +4,7 @@ from starlette.middleware.cors import CORSMiddleware
 
 from openai_api import openai_service
 from auth.cognito import DailyDragonCognitoToken, cognito_auth
+from openai_api.models import SentencesResponse, TranslationEvaluationResponse, SentenceTranslationsToEvaluate
 
 app = FastAPI()
 
@@ -28,16 +29,6 @@ class WordsList(BaseModel):
 def create_practice_sentences(words_list: WordsList,
                               auth: DailyDragonCognitoToken = Depends(cognito_auth.auth_required)):
     return openai_service.get_sentences_for_translation(words_list.words)
-
-
-class TranslationItem(BaseModel):
-    word: str
-    sentence: str
-    translation: str
-
-
-class SentenceTranslationsToEvaluate(BaseModel):
-    translations: list[TranslationItem]
 
 
 @app.post("/daily-dragon/practice/evaluate-translations")

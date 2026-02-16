@@ -5,8 +5,7 @@ from pydantic import BaseModel
 
 from typing import Type
 
-from openai_api.models import SentencesResponse, TranslationEvaluationResponse
-from openai_api.openai_api_app import SentenceTranslationsToEvaluate
+from openai_api.models import SentencesResponse, TranslationEvaluationResponse, SentenceTranslationsToEvaluate
 
 PROMPTS_DIR = Path(__file__).parent / "prompts"
 MODEL_NAME = "gpt-4o-2024-08-06"
