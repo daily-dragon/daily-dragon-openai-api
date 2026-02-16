@@ -3,9 +3,9 @@
 import pytest
 from unittest.mock import patch, MagicMock, mock_open
 
-from openai_api.models import SentencesResponse, SentenceItem, TranslationEvaluationResponse, TranslationEvaluationItem
-from openai_api.openai_api_app import SentenceTranslationsToEvaluate, TranslationItem
-from openai_api.openai_service import send_prompt, get_sentences_for_translation, evaluate_translations
+from models import SentencesResponse, SentenceItem, TranslationEvaluationResponse, TranslationEvaluationItem
+from openai_api_app import SentenceTranslationsToEvaluate, TranslationItem
+from openai_service import send_prompt, get_sentences_for_translation, evaluate_translations
 
 
 @pytest.fixture
@@ -46,7 +46,7 @@ def mock_evaluation_response():
     )
 
 
-@patch("openai_api.openai_service.client")
+@patch("openai_service.client")
 def test_send_prompt_success(mock_client, mock_sentences_response):
     """Test send_prompt successfully sends and receives response."""
     mock_response = MagicMock()
@@ -59,7 +59,7 @@ def test_send_prompt_success(mock_client, mock_sentences_response):
     mock_client.chat.completions.parse.assert_called_once()
 
 
-@patch("openai_api.openai_service.client")
+@patch("openai_service.client")
 def test_send_prompt_correct_model_used(mock_client):
     """Test that send_prompt uses the correct model."""
     mock_response = MagicMock()
@@ -72,7 +72,7 @@ def test_send_prompt_correct_model_used(mock_client):
     assert call_kwargs["model"] == "gpt-4o-2024-08-06"
 
 
-@patch("openai_api.openai_service.client")
+@patch("openai_service.client")
 def test_send_prompt_correct_message_format(mock_client):
     """Test that send_prompt sends message in correct format."""
     mock_response = MagicMock()
@@ -87,7 +87,7 @@ def test_send_prompt_correct_message_format(mock_client):
     assert call_kwargs["messages"][0]["content"] == test_prompt
 
 
-@patch("openai_api.openai_service.client")
+@patch("openai_service.client")
 def test_send_prompt_response_format_param(mock_client):
     """Test that send_prompt passes response_format parameter."""
     mock_response = MagicMock()
@@ -100,7 +100,7 @@ def test_send_prompt_response_format_param(mock_client):
     assert "response_format" in call_kwargs
 
 
-@patch("openai_api.openai_service.client")
+@patch("openai_service.client")
 @patch("builtins.open", new_callable=mock_open, read_data="Words: ${words}, Count: ${n}, Language: ${targetLanguage}")
 def test_get_sentences_for_translation_success(mock_file, mock_client):
     """Test get_sentences_for_translation successfully processes request."""
@@ -118,7 +118,7 @@ def test_get_sentences_for_translation_success(mock_file, mock_client):
     assert result == expected_response.model_dump_json()
 
 
-@patch("openai_api.openai_service.client")
+@patch("openai_service.client")
 @patch("builtins.open", new_callable=mock_open, read_data="Words: ${words}, Count: ${n}, Language: ${targetLanguage}")
 def test_get_sentences_for_translation_prompt_substitution(mock_file, mock_client):
     """Test that get_sentences_for_translation substitutes template variables."""
@@ -139,7 +139,7 @@ def test_get_sentences_for_translation_prompt_substitution(mock_file, mock_clien
     assert "${targetLanguage}" not in prompt
 
 
-@patch("openai_api.openai_service.client")
+@patch("openai_service.client")
 @patch("builtins.open", new_callable=mock_open, read_data="Evaluate: ${prompt_template}")
 def test_get_sentences_for_translation_single_word(mock_file, mock_client):
     """Test get_sentences_for_translation with single word."""
@@ -155,7 +155,7 @@ def test_get_sentences_for_translation_single_word(mock_file, mock_client):
     assert "book" in prompt
 
 
-@patch("openai_api.openai_service.client")
+@patch("openai_service.client")
 @patch("builtins.open", new_callable=mock_open, read_data="Template content")
 def test_get_sentences_for_translation_multiple_words(mock_file, mock_client):
     """Test get_sentences_for_translation with multiple words."""
@@ -173,7 +173,7 @@ def test_get_sentences_for_translation_multiple_words(mock_file, mock_client):
         assert word in prompt
 
 
-@patch("openai_api.openai_service.client")
+@patch("openai_service.client")
 @patch("builtins.open", new_callable=mock_open, read_data="Evaluate translations:\n")
 def test_evaluate_translations_success(mock_file, mock_client, mock_evaluation_response):
     """Test evaluate_translations successfully processes translations."""
@@ -201,7 +201,7 @@ def test_evaluate_translations_success(mock_file, mock_client, mock_evaluation_r
     assert result == mock_evaluation_response.model_dump_json()
 
 
-@patch("openai_api.openai_service.client")
+@patch("openai_service.client")
 @patch("builtins.open", new_callable=mock_open, read_data="Base prompt:\n")
 def test_evaluate_translations_prompt_format(mock_file, mock_client):
     """Test that evaluate_translations formats prompt correctly."""
@@ -230,7 +230,7 @@ def test_evaluate_translations_prompt_format(mock_file, mock_client):
     assert "test" in prompt
 
 
-@patch("openai_api.openai_service.client")
+@patch("openai_service.client")
 @patch("builtins.open", new_callable=mock_open, read_data="Evaluate:\n")
 def test_evaluate_translations_multiple_items(mock_file, mock_client):
     """Test evaluate_translations with multiple translation items."""
@@ -262,7 +262,7 @@ def test_evaluate_translations_multiple_items(mock_file, mock_client):
         assert f"Translation {i}." in prompt
 
 
-@patch("openai_api.openai_service.client")
+@patch("openai_service.client")
 @patch("builtins.open", new_callable=mock_open, read_data="Prompt template")
 def test_get_sentences_for_translation_empty_list(mock_file, mock_client):
     """Test get_sentences_for_translation with empty word list."""
@@ -275,7 +275,7 @@ def test_get_sentences_for_translation_empty_list(mock_file, mock_client):
     assert result == '{"sentences": []}'
 
 
-@patch("openai_api.openai_service.client")
+@patch("openai_service.client")
 @patch("builtins.open", new_callable=mock_open, read_data="Template")
 def test_evaluate_translations_single_item(mock_file, mock_client):
     """Test evaluate_translations with single translation item."""
@@ -301,7 +301,7 @@ def test_evaluate_translations_single_item(mock_file, mock_client):
     assert "1." in prompt
 
 
-@patch("openai_api.openai_service.client")
+@patch("openai_service.client")
 @patch("builtins.open", new_callable=mock_open, read_data="Words: ${words}")
 def test_get_sentences_for_translation_special_characters(mock_file, mock_client):
     """Test get_sentences_for_translation with special characters."""
@@ -317,7 +317,7 @@ def test_get_sentences_for_translation_special_characters(mock_file, mock_client
     assert "café" in prompt or "caf" in prompt  # Handle encoding
 
 
-@patch("openai_api.openai_service.client")
+@patch("openai_service.client")
 @patch("builtins.open", new_callable=mock_open, read_data="Evaluate")
 def test_evaluate_translations_preserves_data(mock_file, mock_client):
     """Test that evaluate_translations preserves translation data in prompt."""

@@ -4,7 +4,7 @@ import pytest
 from fastapi.testclient import TestClient
 from unittest.mock import patch, MagicMock
 
-from openai_api.openai_api_app import app, WordsList, TranslationItem, SentenceTranslationsToEvaluate
+from openai_api_app import app, WordsList, TranslationItem, SentenceTranslationsToEvaluate
 
 client = TestClient(app)
 
