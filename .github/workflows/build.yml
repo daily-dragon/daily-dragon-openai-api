@@ -1,7 +1,11 @@
 name: Build and Deploy Daily Dragon OpenAI API
 on: [push]
+
+env:
+  LAYER_WHEEL_FILE_NAME=daily_dragon_openai_api.zip
+
 jobs:
-  build-vocabulary-api:
+  build-openai-api:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -12,3 +16,44 @@ jobs:
         run: pip install -r requirements.txt
       - name: Run unit tests
         run: pytest --cov=.
+  deploy-layer-and-update-lambda:
+    runs-on: ubuntu-latest
+    needs:
+      - build-openai-api
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.13
+      - run: pwd
+      - run: rm -rf python
+      - name: Install dependencies
+        run: pip install --target python -r requirements.txt
+      - name: Copy API code
+        run: cp -r openai_api python/
+      - run: zip -r9q $LAYER_WHEEL_FILE_NAME python/
+      - run: ls -lsh
+      - uses: aws-actions/configure-aws-credentials@v5
+        with:
+          aws-region: us-west-2
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      - name: Check AWS credentials
+        run: aws sts get-caller-identity
+      - run: aws s3 cp $LAYER_WHEEL_FILE_NAME s3://daily-dragon-layer/$LAYER_WHEEL_FILE_NAME
+      - name: Publish new layer version
+        id: publish_layer
+        run: |
+          NEW_LAYER_ARN=$(aws lambda publish-layer-version \
+            --layer-name daily-dragon-openai-api-libraries \
+            --content S3Bucket=daily-dragon-layer,S3Key=$LAYER_WHEEL_FILE_NAME \
+            --compatible-runtimes python3.13 \
+            --query 'LayerVersionArn' --output text)
+          echo "Published new layer version: $NEW_LAYER_ARN"
+          echo "layer_arn=$NEW_LAYER_ARN" >> $GITHUB_ENV
+      - name: Update Lambda function configuration with new layer
+        run: |
+          aws lambda update-function-configuration \
+          --function-name daily-dragon-openai-api \
+          --layers $layer_arn
