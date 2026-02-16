@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from starlette.middleware.cors import CORSMiddleware
 
 from openai_api import openai_service
-from auth.cognito import DailyDragonCognitoToken, cognito_auth
+from openai_api.auth.cognito import DailyDragonCognitoToken, cognito_auth
 from openai_api.models import SentencesResponse, TranslationEvaluationResponse, SentenceTranslationsToEvaluate
 
 app = FastAPI()
