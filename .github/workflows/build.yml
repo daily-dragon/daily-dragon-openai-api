@@ -2,7 +2,7 @@ name: Build and Deploy Daily Dragon OpenAI API
 on: [push]
 
 env:
-  LAYER_WHEEL_FILE_NAME=daily_dragon_openai_api.zip
+  LAYER_WHEEL_FILE_NAME: daily_dragon_openai_api.zip
 
 jobs:
   build-openai-api:
