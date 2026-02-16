@@ -2,7 +2,7 @@ from fastapi import FastAPI, Depends
 from pydantic import BaseModel
 from starlette.middleware.cors import CORSMiddleware
 
-import openai_service
+from openai_api import openai_service
 from auth.cognito import DailyDragonCognitoToken, cognito_auth
 
 app = FastAPI()
