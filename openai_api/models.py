@@ -14,6 +14,7 @@ class TranslationEvaluationItem(BaseModel):
     sentence: str
     translation: str
     target_word: str
+    target_word_pinyin: str
     word_used: str
     feedback: str
     correct_sentence: str

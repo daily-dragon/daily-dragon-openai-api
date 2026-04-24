@@ -25,22 +25,14 @@ def mock_evaluation_response():
     return TranslationEvaluationResponse(
         evaluations=[
             TranslationEvaluationItem(
-                sentence="I read a book.",
-                translation="Я читаю книгу.",
-                target_word="book",
-                word_used="book",
+                sentence="I read a book every day.",
+                translation="我每天读一本书。",
+                target_word="书",
+                target_word_pinyin="shū",
+                word_used="书",
                 feedback="Good translation",
-                correct_sentence="Я читаю книгу.",
+                correct_sentence="我每天读一本书。",
                 score=95,
-            ),
-            TranslationEvaluationItem(
-                sentence="I write with a pen.",
-                translation="Я пишу ручкой.",
-                target_word="pen",
-                word_used="pen",
-                feedback="Correct",
-                correct_sentence="Я пишу ручкой.",
-                score=100,
             ),
         ]
     )
