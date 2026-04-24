@@ -40,13 +40,13 @@ def evaluate_translations(data: SentenceTranslationsToEvaluate) -> str:
     prompt_file = PROMPTS_DIR / "evaluate_translations"
     prompt_template = prompt_file.read_text(encoding="utf-8")
 
-    items_text = "\n".join(
+    items_text = "\n\n".join(
         f'{i + 1}. Sentence: "{item.sentence}"\n'
         f'User Translation: "{item.translation}"\n'
-        f'Target Word: "{item.word}"\n'
+        f'Target Word: "{item.word}"'
         for i, item in enumerate(data.translations)
     )
 
-    prompt = f"{prompt_template.rstrip()}{items_text}"
+    prompt = prompt_template.replace("${items}", items_text)
 
     return send_prompt(prompt, TranslationEvaluationResponse)

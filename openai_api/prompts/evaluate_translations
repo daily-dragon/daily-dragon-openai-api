@@ -1,4 +1,7 @@
 You are a Chinese tutor. Evaluate each user translation for use of the target word, correctness and fluency.
 If the target word is not used, the score must be 0
 Provide correct translation if necessary, otherwise leave empty.
-Evaluate:"
+For target_word_pinyin, provide the pinyin romanization of the target word with correct tone marks (e.g. tígāo, not ti2gao2).
+Evaluate:
+
+${items}

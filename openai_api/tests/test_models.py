@@ -44,14 +44,15 @@ def test_translation_evaluation_item_creation():
     """Test creating a TranslationEvaluationItem."""
     item = TranslationEvaluationItem(
         sentence="I read a book.",
-        translation="Я читаю книгу.",
-        target_word="book",
-        word_used="book",
+        translation="我读了一本书。",
+        target_word="书",
+        target_word_pinyin="shū",
+        word_used="书",
         feedback="Good translation",
-        correct_sentence="Я читаю книгу.",
+        correct_sentence="我读了一本书。",
         score=95,
     )
-    assert item.word_used == "book"
+    assert item.word_used == "书"
     assert item.score == 95
 
 
@@ -59,15 +60,16 @@ def test_translation_evaluation_item_all_fields():
     """Test that all fields are properly set."""
     item = TranslationEvaluationItem(
         sentence="The cat sat on the mat.",
-        translation="Le chat s'est assis sur le tapis.",
-        target_word="cat",
-        word_used="cat",
+        translation="猫坐在垫子上。",
+        target_word="猫",
+        target_word_pinyin="māo",
+        word_used="猫",
         feedback="Correct usage of the target word",
-        correct_sentence="Le chat s'est assis sur le tapis.",
+        correct_sentence="猫坐在垫子上。",
         score=100,
     )
     assert item.sentence == "The cat sat on the mat."
-    assert item.target_word == "cat"
+    assert item.target_word == "猫"
     assert item.feedback == "Correct usage of the target word"
 
 
@@ -76,20 +78,22 @@ def test_translation_evaluation_response_creation():
     items = [
         TranslationEvaluationItem(
             sentence="I read a book.",
-            translation="Я читаю книгу.",
-            target_word="book",
-            word_used="book",
+            translation="我读了一本书。",
+            target_word="书",
+            target_word_pinyin="shū",
+            word_used="书",
             feedback="Good",
-            correct_sentence="Я читаю книгу.",
+            correct_sentence="我读了一本书。",
             score=90,
         ),
         TranslationEvaluationItem(
             sentence="I write with a pen.",
-            translation="Я пишу ручкой.",
-            target_word="pen",
-            word_used="pen",
+            translation="我用钢笔写字。",
+            target_word="钢笔",
+            target_word_pinyin="gāngbǐ",
+            word_used="钢笔",
             feedback="Correct",
-            correct_sentence="Я пишу ручкой.",
+            correct_sentence="我用钢笔写字。",
             score=100,
         ),
     ]
@@ -103,11 +107,12 @@ def test_translation_evaluation_response_single_item():
     """Test TranslationEvaluationResponse with single item."""
     item = TranslationEvaluationItem(
         sentence="Test sentence.",
-        translation="Test translation.",
-        target_word="test",
-        word_used="test",
+        translation="测试翻译。",
+        target_word="测试",
+        target_word_pinyin="cèshì",
+        word_used="测试",
         feedback="Test feedback",
-        correct_sentence="Test sentence.",
+        correct_sentence="测试翻译。",
         score=85,
     )
     response = TranslationEvaluationResponse(evaluations=[item])
@@ -136,8 +141,9 @@ def test_translation_evaluation_item_zero_score():
     """Test TranslationEvaluationItem with zero score."""
     item = TranslationEvaluationItem(
         sentence="Wrong translation.",
-        translation="Неправильный перевод.",
-        target_word="word",
+        translation="错误翻译。",
+        target_word="提高",
+        target_word_pinyin="tígāo",
         word_used="different",
         feedback="Incorrect word usage",
         correct_sentence="Correct sentence.",
@@ -150,11 +156,12 @@ def test_translation_evaluation_item_perfect_score():
     """Test TranslationEvaluationItem with perfect score."""
     item = TranslationEvaluationItem(
         sentence="Perfect translation.",
-        translation="Идеальный перевод.",
-        target_word="perfect",
-        word_used="perfect",
+        translation="完美翻译。",
+        target_word="完美",
+        target_word_pinyin="wánměi",
+        word_used="完美",
         feedback="Perfect",
-        correct_sentence="Идеальный перевод.",
+        correct_sentence="完美翻译。",
         score=100,
     )
     assert item.score == 100
@@ -179,6 +186,7 @@ def test_translation_evaluation_response_multiple():
             sentence=f"Sentence {i}",
             translation=f"Translation {i}",
             target_word=f"word{i}",
+            target_word_pinyin=f"pīnyīn{i}",
             word_used=f"word{i}",
             feedback=f"Feedback {i}",
             correct_sentence=f"Correct {i}",
