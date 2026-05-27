@@ -23,12 +23,13 @@ app.add_middleware(
 
 class WordsList(BaseModel):
     words: list[str]
+    hsk_level: int | None = None
 
 
 @app.post("/daily-dragon/practice/sentences")
 def create_practice_sentences(words_list: WordsList,
                               auth: DailyDragonCognitoToken = Depends(cognito_auth.auth_required)):
-    return openai_service.get_sentences_for_translation(words_list.words)
+    return openai_service.get_sentences_for_translation(words_list.words, words_list.hsk_level)
 
 
 @app.post("/daily-dragon/practice/evaluate-translations")

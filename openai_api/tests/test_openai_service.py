@@ -111,7 +111,7 @@ def test_get_sentences_for_translation_success(mock_file, mock_client):
 
 
 @patch("openai_service.client")
-@patch("builtins.open", new_callable=mock_open, read_data="Words: ${words}, Count: ${n}, Language: ${targetLanguage}")
+@patch("builtins.open", new_callable=mock_open, read_data="Words: ${words}, Count: ${n}, Language: ${targetLanguage} ${hskLevelInstruction}")
 def test_get_sentences_for_translation_prompt_substitution(mock_file, mock_client):
     """Test that get_sentences_for_translation substitutes template variables."""
     mock_response = MagicMock()
@@ -129,6 +129,7 @@ def test_get_sentences_for_translation_prompt_substitution(mock_file, mock_clien
     assert "${n}" not in prompt
     assert "English" in prompt
     assert "${targetLanguage}" not in prompt
+    assert "${hskLevelInstruction}" not in prompt
 
 
 @patch("openai_service.client")
@@ -291,6 +292,40 @@ def test_evaluate_translations_single_item(mock_file, mock_client):
     prompt = call_kwargs["messages"][0]["content"]
 
     assert "1." in prompt
+
+
+@patch("openai_service.client")
+@patch("builtins.open", new_callable=mock_open, read_data="${hskLevelInstruction}")
+def test_get_sentences_for_translation_with_hsk_level(mock_file, mock_client):
+    """Test that hsk_level injects the HSK complexity instruction."""
+    mock_response = MagicMock()
+    mock_response.choices[0].message.content = '{"sentences": []}'
+    mock_client.chat.completions.parse.return_value = mock_response
+
+    get_sentences_for_translation(["书"], hsk_level=3)
+
+    call_kwargs = mock_client.chat.completions.parse.call_args[1]
+    prompt = call_kwargs["messages"][0]["content"]
+
+    assert "HSK level 3" in prompt
+    assert "${hskLevelInstruction}" not in prompt
+
+
+@patch("openai_service.client")
+@patch("builtins.open", new_callable=mock_open, read_data="${hskLevelInstruction}")
+def test_get_sentences_for_translation_without_hsk_level(mock_file, mock_client):
+    """Test that omitting hsk_level leaves no HSK instruction in the prompt."""
+    mock_response = MagicMock()
+    mock_response.choices[0].message.content = '{"sentences": []}'
+    mock_client.chat.completions.parse.return_value = mock_response
+
+    get_sentences_for_translation(["书"])
+
+    call_kwargs = mock_client.chat.completions.parse.call_args[1]
+    prompt = call_kwargs["messages"][0]["content"]
+
+    assert "HSK" not in prompt
+    assert "${hskLevelInstruction}" not in prompt
 
 
 @patch("openai_service.client")

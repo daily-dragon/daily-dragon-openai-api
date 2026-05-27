@@ -247,6 +247,18 @@ def test_cors_allowed_origins():
     assert app is not None
 
 
+def test_words_list_with_hsk_level():
+    """Test WordsList accepts optional hsk_level."""
+    words_list = WordsList(words=["书", "人"], hsk_level=3)
+    assert words_list.hsk_level == 3
+
+
+def test_words_list_hsk_level_defaults_to_none():
+    """Test WordsList hsk_level defaults to None when omitted."""
+    words_list = WordsList(words=["书"])
+    assert words_list.hsk_level is None
+
+
 def test_words_list_required_field():
     """Test that WordsList requires words field."""
     with pytest.raises(ValueError):

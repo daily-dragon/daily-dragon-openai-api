@@ -25,13 +25,19 @@ def send_prompt(prompt: str, response_model: Type[BaseModel]) -> str:
     return response.choices[0].message.content
 
 
-def get_sentences_for_translation(words: list[str]) -> str:
+def get_sentences_for_translation(words: list[str], hsk_level: int | None = None) -> str:
     prompt_file = PROMPTS_DIR / "get_sentences_for_translation"
     prompt_template = prompt_file.read_text(encoding="utf-8")
+
+    hsk_instruction = (
+        f"Keep surrounding vocabulary and grammar complexity appropriate for HSK level {hsk_level}.\n"
+        if hsk_level else ""
+    )
 
     prompt = prompt_template.replace("${words}", ", ".join(words))
     prompt = prompt.replace("${n}", str(N))
     prompt = prompt.replace("${targetLanguage}", TARGET_LANGUAGE)
+    prompt = prompt.replace("${hskLevelInstruction}", hsk_instruction)
 
     return send_prompt(prompt, SentencesResponse)
 
