@@ -13,6 +13,7 @@ Feedback rules:
 - List EVERY issue you find: wrong target word, grammar errors, unnatural phrasing, wrong particles, missing words, word order — all of them, not just the most obvious one
 - For each issue, quote the exact problematic word or phrase and name the specific problem (e.g. "了 should not be used here because...")
 - Write plain text only — no markdown bold, no asterisks, no bullet symbols
+- Include pinyin for alternative words not used in the sentence
 - If the translation is fully correct, write one short positive sentence
 
 correct_sentence rules:
