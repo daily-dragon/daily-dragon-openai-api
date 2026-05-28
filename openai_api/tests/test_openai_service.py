@@ -187,12 +187,12 @@ def test_evaluate_translations_success(mock_file, mock_client, mock_evaluation_r
             TranslationItem(
                 word="book",
                 sentence="I read a book.",
-                translation="я читаю книгу.",
+                translation="Я читаю книгу.",
             ),
             TranslationItem(
                 word="pen",
                 sentence="I write with a pen.",
-                translation="я пишу ружкой.",
+                translation="Я пишу ручкой.",
             ),
         ]
     )
@@ -382,11 +382,6 @@ def test_evaluate_translations_preserves_data(mock_file, mock_client):
     assert word in prompt
     assert sentence in prompt
     assert translation in prompt
-
-
-# ----------------------------------------------------------------------------
-# Logging tests
-# ----------------------------------------------------------------------------
 
 
 @pytest.fixture
