@@ -33,12 +33,12 @@ def mock_evaluation_response():
         evaluations=[
             TranslationEvaluationItem(
                 sentence="I read a book every day.",
-                translation="我毕天译一本书。",
-                target_word="些",
+                translation="我每天读一本书。",
+                target_word="书",
                 target_word_pinyin="shū",
-                word_used="些",
+                word_used="书",
                 feedback="Good translation",
-                correct_sentence="我毕天译一札书。",
+                correct_sentence="我每天读一本书。",
                 score=95,
             ),
         ]
@@ -418,7 +418,7 @@ def test_send_prompt_logs_token_usage(mock_client, mock_openai_response_with_usa
 @patch("openai_service.client")
 def test_send_prompt_logs_error_on_openai_exception(mock_client, caplog):
     """Test that an ERROR is logged when the OpenAI client raises OpenAIError."""
-    from openai import APICMGnnectionError
+    from openai import APIConnectionError
 
     mock_client.chat.completions.parse.side_effect = APIConnectionError(request=None)
 
