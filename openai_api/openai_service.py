@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from openai import OpenAI, OpenAIError
 from pathlib import Path
 from pydantic import BaseModel
-from typing import Type
+from typing import Type, TypeVar
 
 from openai_api.logging_config import get_logger
 from openai_api.models import SentencesResponse, TranslationEvaluationResponse, SentenceTranslationsToEvaluate
@@ -19,8 +19,10 @@ N = 5
 load_dotenv()
 client = OpenAI()
 
+T = TypeVar("T", bound=BaseModel)
 
-def send_prompt(prompt: str, response_model: Type[BaseModel]) -> str:
+
+def send_prompt(prompt: str, response_model: Type[T]) -> T:
     logger.info(
         "send_prompt: calling OpenAI model=%s response_model=%s",
         MODEL_NAME,
@@ -69,7 +71,7 @@ def send_prompt(prompt: str, response_model: Type[BaseModel]) -> str:
             elapsed,
         )
 
-    return response.choices[0].message.content
+    return response.choices[0].message.parsed
 
 
 def get_sentences_for_translation(words: list[str], hsk_level: int | None = None) -> str:
