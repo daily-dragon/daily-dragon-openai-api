@@ -4,14 +4,8 @@ import logging
 import pytest
 from unittest.mock import patch, MagicMock, mock_open
 
-from models import (
-    SentencesResponse,
-    SentenceItem,
-    TranslationEvaluationResponse,
-    TranslationEvaluationItem,
-    SentenceTranslationsToEvaluate,
-    TranslationItem,
-)
+from models import SentencesResponse, SentenceItem, TranslationEvaluationResponse, TranslationEvaluationItem, \
+    SentenceTranslationsToEvaluate, TranslationItem
 from openai_service import send_prompt, get_sentences_for_translation, evaluate_translations
 
 
@@ -33,12 +27,12 @@ def mock_evaluation_response():
         evaluations=[
             TranslationEvaluationItem(
                 sentence="I read a book every day.",
-                translation="我毕天译一本书。",
-                target_word="些",
+                translation="我每天读一本书。",
+                target_word="书",
                 target_word_pinyin="shū",
-                word_used="些",
+                word_used="书",
                 feedback="Good translation",
-                correct_sentence="我毕天译一札书。",
+                correct_sentence="我每天读一本书。",
                 score=95,
             ),
         ]
@@ -118,7 +112,8 @@ def test_get_sentences_for_translation_success(mock_file, mock_client):
 
 
 @patch("openai_service.client")
-@patch("builtins.open", new_callable=mock_open, read_data="Words: ${words}, Count: ${n}, Language: ${targetLanguage} ${hskLevelInstruction}")
+@patch("builtins.open", new_callable=mock_open,
+       read_data="Words: ${words}, Count: ${n}, Language: ${targetLanguage} ${hskLevelInstruction}")
 def test_get_sentences_for_translation_prompt_substitution(mock_file, mock_client):
     """Test that get_sentences_for_translation substitutes template variables."""
     mock_response = MagicMock()
@@ -186,12 +181,12 @@ def test_evaluate_translations_success(mock_file, mock_client, mock_evaluation_r
             TranslationItem(
                 word="book",
                 sentence="I read a book.",
-                translation="�� читаю книгу.",
+                translation="Я читаю книгу.",
             ),
             TranslationItem(
                 word="pen",
                 sentence="I write with a pen.",
-                translation="�� пишу ру�кой.",
+                translation="Я пишу ручкой.",
             ),
         ]
     )
@@ -309,7 +304,7 @@ def test_get_sentences_for_translation_with_hsk_level(mock_file, mock_client):
     mock_response.choices[0].message.content = '{"sentences": []}'
     mock_client.chat.completions.parse.return_value = mock_response
 
-    get_sentences_for_translation(["人"], hsk_level=3)
+    get_sentences_for_translation(["书"], hsk_level=3)
 
     call_kwargs = mock_client.chat.completions.parse.call_args[1]
     prompt = call_kwargs["messages"][0]["content"]
@@ -326,7 +321,7 @@ def test_get_sentences_for_translation_without_hsk_level(mock_file, mock_client)
     mock_response.choices[0].message.content = '{"sentences": []}'
     mock_client.chat.completions.parse.return_value = mock_response
 
-    get_sentences_for_translation(["人"])
+    get_sentences_for_translation(["书"])
 
     call_kwargs = mock_client.chat.completions.parse.call_args[1]
     prompt = call_kwargs["messages"][0]["content"]
@@ -381,11 +376,6 @@ def test_evaluate_translations_preserves_data(mock_file, mock_client):
     assert word in prompt
     assert sentence in prompt
     assert translation in prompt
-
-
-# ----------------------------------------------------------------------------
-# Logging tests
-# ----------------------------------------------------------------------------
 
 
 @pytest.fixture
