@@ -49,12 +49,12 @@ def mock_evaluation_response():
 def test_send_prompt_success(mock_client, mock_sentences_response):
     """Test send_prompt successfully sends and receives response."""
     mock_response = MagicMock()
-    mock_response.choices[0].message.content = mock_sentences_response.model_dump_json()
+    mock_response.choices[0].message.parsed = mock_sentences_response
     mock_client.chat.completions.parse.return_value = mock_response
 
     result = send_prompt("Test prompt", SentencesResponse)
 
-    assert result == mock_sentences_response.model_dump_json()
+    assert result == mock_sentences_response
     mock_client.chat.completions.parse.assert_called_once()
 
 
@@ -100,8 +100,8 @@ def test_send_prompt_response_format_param(mock_client):
 
 
 @patch("openai_service.client")
-@patch("builtins.open", new_callable=mock_open, read_data="Words: ${words}, Count: ${n}, Language: ${targetLanguage}")
-def test_get_sentences_for_translation_success(mock_file, mock_client):
+@patch("pathlib.Path.read_text", return_value="Words: ${words}, Count: ${n}, Language: ${targetLanguage} ${hskLevelInstruction}")
+def test_get_sentences_for_translation_success(mock_read_text, mock_client):
     """Test get_sentences_for_translation successfully processes request."""
     mock_response = MagicMock()
     expected_response = SentencesResponse(
@@ -109,12 +109,12 @@ def test_get_sentences_for_translation_success(mock_file, mock_client):
             SentenceItem(word="test", sentence="Test sentence."),
         ]
     )
-    mock_response.choices[0].message.content = expected_response.model_dump_json()
+    mock_response.choices[0].message.parsed = expected_response
     mock_client.chat.completions.parse.return_value = mock_response
 
     result = get_sentences_for_translation(["book", "pen"])
 
-    assert result == expected_response.model_dump_json()
+    assert result == expected_response
 
 
 @patch("openai_service.client")
@@ -175,11 +175,11 @@ def test_get_sentences_for_translation_multiple_words(mock_file, mock_client):
 
 
 @patch("openai_service.client")
-@patch("builtins.open", new_callable=mock_open, read_data="Evaluate translations:\n")
-def test_evaluate_translations_success(mock_file, mock_client, mock_evaluation_response):
+@patch("pathlib.Path.read_text", return_value="Evaluate translations:\n ${items}")
+def test_evaluate_translations_success(mock_read_text, mock_client, mock_evaluation_response):
     """Test evaluate_translations successfully processes translations."""
     mock_response = MagicMock()
-    mock_response.choices[0].message.content = mock_evaluation_response.model_dump_json()
+    mock_response.choices[0].message.parsed = mock_evaluation_response
     mock_client.chat.completions.parse.return_value = mock_response
 
     translations = SentenceTranslationsToEvaluate(
@@ -199,7 +199,7 @@ def test_evaluate_translations_success(mock_file, mock_client, mock_evaluation_r
 
     result = evaluate_translations(translations)
 
-    assert result == mock_evaluation_response.model_dump_json()
+    assert result == mock_evaluation_response
 
 
 @patch("openai_service.client")
@@ -264,16 +264,17 @@ def test_evaluate_translations_multiple_items(mock_file, mock_client):
 
 
 @patch("openai_service.client")
-@patch("builtins.open", new_callable=mock_open, read_data="Prompt template")
-def test_get_sentences_for_translation_empty_list(mock_file, mock_client):
+@patch("pathlib.Path.read_text", return_value="Prompt template")
+def test_get_sentences_for_translation_empty_list(mock_read_text, mock_client):
     """Test get_sentences_for_translation with empty word list."""
+    empty_response = SentencesResponse(sentences=[])
     mock_response = MagicMock()
-    mock_response.choices[0].message.content = '{"sentences": []}'
+    mock_response.choices[0].message.parsed = empty_response
     mock_client.chat.completions.parse.return_value = mock_response
 
     result = get_sentences_for_translation([])
 
-    assert result == '{"sentences": []}'
+    assert result == empty_response
 
 
 @patch("openai_service.client")

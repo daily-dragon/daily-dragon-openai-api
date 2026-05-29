@@ -4,8 +4,13 @@ import pytest
 from fastapi.testclient import TestClient
 from unittest.mock import patch, MagicMock
 
-from models import SentenceTranslationsToEvaluate, TranslationItem
+from models import (
+    SentenceTranslationsToEvaluate, TranslationItem,
+    SentencesResponse, SentenceItem,
+    TranslationEvaluationResponse, TranslationEvaluationItem,
+)
 from openai_api_app import app, WordsList
+from openai_api.auth.cognito import cognito_auth
 
 client = TestClient(app)
 
@@ -75,44 +80,59 @@ def test_sentence_translations_to_evaluate_model():
     assert len(translations.translations) == 2
 
 
-@patch("openai_api.openai_api_app.cognito_auth.auth_required")
 @patch("openai_api.openai_api_app.openai_service.get_sentences_for_translation")
-def test_create_practice_sentences_endpoint(mock_service, mock_auth, mock_auth_token):
-    """Test /daily-dragon/practice/sentences endpoint."""
-    mock_auth.return_value = mock_auth_token
-    mock_service.return_value = '{"sentences": [{"word": "book", "sentence": "I read a book."}]}'
-
-    response = client.post(
-        "/daily-dragon/practice/sentences",
-        json={"words": ["book", "pen"]},
-        headers={"Authorization": "Bearer mock-token"},
+def test_create_practice_sentences_endpoint(mock_service, mock_auth_token):
+    """Test /daily-dragon/practice/sentences endpoint returns SentencesResponse."""
+    mock_service.return_value = SentencesResponse(
+        sentences=[SentenceItem(word="书", sentence="我在读一本书。")]
     )
-    # Note: This will fail without proper auth setup, which is expected
-    # The test validates the endpoint structure exists
+    app.dependency_overrides[cognito_auth.auth_required] = lambda: mock_auth_token
+    try:
+        response = client.post(
+            "/daily-dragon/practice/sentences",
+            json={"words": ["书"]},
+            headers={"Authorization": "Bearer mock-token"},
+        )
+        assert response.status_code == 200
+        data = response.json()
+        assert "sentences" in data
+        assert data["sentences"][0]["word"] == "书"
+        assert data["sentences"][0]["sentence"] == "我在读一本书。"
+    finally:
+        app.dependency_overrides.clear()
 
 
-@patch("openai_api.openai_api_app.cognito_auth.auth_required")
 @patch("openai_api.openai_api_app.openai_service.evaluate_translations")
-def test_evaluate_translations_endpoint(mock_service, mock_auth, mock_auth_token):
-    """Test /daily-dragon/practice/evaluate-translations endpoint."""
-    mock_auth.return_value = mock_auth_token
-    mock_service.return_value = '{"evaluations": []}'
-
-    response = client.post(
-        "/daily-dragon/practice/evaluate-translations",
-        json={
-            "translations": [
-                {
-                    "word": "book",
-                    "sentence": "I read a book.",
-                    "translation": "Я читаю книгу.",
-                }
-            ]
-        },
-        headers={"Authorization": "Bearer mock-token"},
+def test_evaluate_translations_endpoint(mock_service, mock_auth_token):
+    """Test /daily-dragon/practice/evaluate-translations endpoint returns TranslationEvaluationResponse."""
+    mock_service.return_value = TranslationEvaluationResponse(
+        evaluations=[
+            TranslationEvaluationItem(
+                sentence="I read a book.",
+                translation="我读一本书。",
+                target_word="书",
+                target_word_pinyin="shū",
+                word_used="书",
+                feedback="Good translation.",
+                correct_sentence="我读一本书。",
+                score=9,
+            )
+        ]
     )
-
-    # Note: This will fail without proper auth setup, which is expected
+    app.dependency_overrides[cognito_auth.auth_required] = lambda: mock_auth_token
+    try:
+        response = client.post(
+            "/daily-dragon/practice/evaluate-translations",
+            json={"translations": [{"word": "书", "sentence": "I read a book.", "translation": "我读一本书。"}]},
+            headers={"Authorization": "Bearer mock-token"},
+        )
+        assert response.status_code == 200
+        data = response.json()
+        assert "evaluations" in data
+        assert data["evaluations"][0]["target_word"] == "书"
+        assert data["evaluations"][0]["score"] == 9
+    finally:
+        app.dependency_overrides.clear()
 
 
 def test_words_list_json_serialization():

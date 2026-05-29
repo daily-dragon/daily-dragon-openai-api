@@ -31,7 +31,7 @@ class WordsList(BaseModel):
     hsk_level: int | None = None
 
 
-@app.post("/daily-dragon/practice/sentences")
+@app.post("/daily-dragon/practice/sentences", response_model=SentencesResponse)
 def create_practice_sentences(
     words_list: WordsList,
     auth: DailyDragonCognitoToken = Depends(cognito_auth.auth_required),
@@ -47,7 +47,7 @@ def create_practice_sentences(
     return result
 
 
-@app.post("/daily-dragon/practice/evaluate-translations")
+@app.post("/daily-dragon/practice/evaluate-translations", response_model=TranslationEvaluationResponse)
 def evaluate_translations(
     translations: SentenceTranslationsToEvaluate,
     auth: DailyDragonCognitoToken = Depends(cognito_auth.auth_required),
