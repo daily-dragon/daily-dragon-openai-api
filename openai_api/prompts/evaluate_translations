@@ -8,7 +8,7 @@ Scoring (strictly enforced):
 - Full sentence, correct target word, natural: 9–10
 Score 9–10 requires BOTH correct target word AND a natural sentence.
 
-If the target word is a bound morpheme (e.g. 们, 子, 得, 着) that never appears standalone, it counts as correctly used when it appears inside a compound word (e.g. 他们 counts as using 们).
+If the target word is a bound morpheme (e.g. 们, 子, 得, 着, 分) that never appears standalone, it counts as correctly used when it appears inside a compound word (e.g. 他们 and 分钟 counts as using 们 or 分).
 
 Feedback: List every issue — wrong word, grammar, particles, word order, unnatural phrasing. Quote the problematic word/phrase and explain each issue. Plain text only, no markdown. Include pinyin for alternative words. Never include a correct sentence in feedback — use the correct_sentence field for that. If fully correct, write one short positive sentence.
 

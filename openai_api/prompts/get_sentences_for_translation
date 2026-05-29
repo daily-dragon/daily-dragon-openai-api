@@ -1,4 +1,9 @@
-Create ${n} short, natural ${targetLanguage} sentences using these words: ${words}. ${hskLevelInstruction}For each word: first identify a context where it is the ONLY correct Chinese option (considering synonyms, measure word rules, register, etc.), then write a short natural English sentence for that context. Each sentence uses one target word once. Enclose the translated target word in < >.
+Create ${n} short, natural ${targetLanguage} sentences using these words: ${words}.
+${hskLevelInstruction}
+For each word: first identify a context where it is the ONLY correct Chinese option (considering synonyms, measure word rules, register, etc.),
+then write a short natural English sentence for that context.
+For 二, generate a sentence where it is the only correct option, not 两 or 俩.
+Each sentence uses one target word once. Enclose the translated target word in < >.
 
 Return JSON only (no extra text):
 {
