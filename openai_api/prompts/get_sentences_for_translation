@@ -1,4 +1,8 @@
-Create ${n} short, natural ${targetLanguage} sentences using these words: ${words}. ${hskLevelInstruction}For each word: first identify a context where it is the ONLY correct Chinese option (considering synonyms, measure word rules, register, etc.), then write a short natural English sentence for that context. Each sentence uses one target word once. Enclose the translated target word in < >.
+Create ${n} short, natural sentences using these words: ${words}. ${hskLevelInstruction}For each word:
+1. Compose a Chinese sentence that uses the target word correctly and naturally.
+2. Translate that sentence into ${targetLanguage}, enclosing the translation of the target word in < >.
+
+Each sentence must use the target word exactly once in a typical, everyday context.
 
 Return JSON only (no extra text):
 {
