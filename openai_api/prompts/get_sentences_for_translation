@@ -1,12 +1,9 @@
-Using only common, neutral, everyday language, create ${n} short, natural sentences in ${targetLanguage} using these words: ${words}.
-Each sentence should use one target word once, in a typical, high-frequency structure suitable for learners.
-${hskLevelInstruction}Return only ${targetLanguage} sentences.
-Enclose the translated target word in < >.
-Return a JSON dictionary exactly in this format (no header, no extra text):
+Create ${n} short, natural ${targetLanguage} sentences using these words: ${words}. Each sentence uses one target word once in a typical, everyday context. ${hskLevelInstruction}Design each sentence so the exact target word is the only natural translation — if the word has usage restrictions (e.g. 二 vs 两), choose a context that specifically requires it. Enclose the translated target word in < >.
 
+Return JSON only (no extra text):
 {
   "sentences": {
-    "original_word1": "sentence in ${targetLanguage} with <translated_word>",
+    "original_word1": "sentence with <translated_word>",
     ...
   }
 }
