@@ -1,8 +1,7 @@
 import pytest
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
-from openai_api.auth.cognito import cognito_auth, DailyDragonCognitoToken
-from openai_api.openai_api_app import app
+import openai_api.openai_service as openai_service_module
 from openai_api.models import (
     SentencesResponse,
     SentenceItem,
@@ -10,29 +9,6 @@ from openai_api.models import (
     WordCardItem,
     ExampleSentence,
 )
-from fastapi.testclient import TestClient
-from unittest.mock import MagicMock
-import openai_api.openai_service as openai_service_module
-
-
-def dummy_auth():
-    return DailyDragonCognitoToken.model_validate({
-        "aud": "test-aud",
-        "sub": "test-sub",
-        "email": "test@example.com",
-        "cognito:username": "testuser",
-        "email_verified": True,
-        "token_use": "id",
-    })
-
-
-@pytest.fixture
-def client():
-    app.dependency_overrides = dict()
-    app.dependency_overrides[cognito_auth.auth_required] = lambda: dummy_auth()
-    c = TestClient(app)
-    yield c
-    app.dependency_overrides = {}
 
 
 def make_word_cards_response():
@@ -44,7 +20,7 @@ def make_word_cards_response():
                 meanings=["friend"],
                 examples=[
                     ExampleSentence(
-                        chinese="\u6211\u6709\u5f89\u597d\u53cb\vo:",
+                        chinese="\u6211\u6709\u5f89\u597d\u53cb",
                         english="I have many friends."
                     )
                 ],
@@ -95,9 +71,8 @@ def test_get_word_cards_empty_words(client):
         "/daily-dragon/learning/word-cards",
         json={"words": []},
     )
-    # FastAPI validation rejects empty list with min_length constraint
-    # If no constraint is set, the service is called with an empty list;
-    # either way the response should not be a 500.
+    # FastAPI may reject an empty list or pass it through.
+    # Either way it should not crash with a 500.
     assert response.status_code != 500
 
 
