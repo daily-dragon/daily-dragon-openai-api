@@ -7,7 +7,12 @@ from pydantic import BaseModel
 from typing import Type, TypeVar
 
 from openai_api.logging_config import get_logger
-from openai_api.models import SentencesResponse, TranslationEvaluationResponse, SentenceTranslationsToEvaluate
+from openai_api.models import (
+    SentencesResponse,
+    TranslationEvaluationResponse,
+    SentenceTranslationsToEvaluate,
+    WordCardsResponse,
+)
 
 logger = get_logger(__name__)
 
@@ -105,7 +110,7 @@ def evaluate_translations(data: SentenceTranslationsToEvaluate) -> str:
     prompt_template = prompt_file.read_text(encoding="utf-8")
 
     items_text = "\n\n".join(
-        f'{i + 1}. Sentence: "{item.sentence}"\n'
+        f'{i + 1}. Sentence: "{sentence}"\n'
         f'User Translation: "{item.translation}"\n'
         f'Target Word: "{item.word}"'
         for i, item in enumerate(data.translations)
@@ -113,3 +118,23 @@ def evaluate_translations(data: SentenceTranslationsToEvaluate) -> str:
 
     prompt = prompt_template.replace("${items}", items_text)
     return send_prompt(prompt, TranslationEvaluationResponse)
+
+
+def get_word_cards(words: list[str], hsk_level: int | None = None) -> WordCardsResponse:
+    logger.info(
+        "get_word_cards: words=%s hsk_level=%s",
+        words,
+        hsk_level,
+    )
+    prompt_file = PROMPTS_DIR / "get_word_cards"
+    prompt_template = prompt_file.read_text(encoding="utf-8")
+
+    hsk_instruction = (
+        f"The learner is at HSK level {hsk_level}. Keep example sentence vocabulary and grammar appropriate for that level.\n"
+        if hsk_level else ""
+    )
+
+    prompt = prompt_template.replace("${words}", ", ".join(words))
+    prompt = prompt.replace("${hskLevelInstruction}", hsk_instruction)
+
+    return send_prompt(prompt, WordCardsResponse)
