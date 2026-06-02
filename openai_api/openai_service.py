@@ -22,7 +22,23 @@ TARGET_LANGUAGE = "English"
 N = 5
 
 load_dotenv()
-client = OpenAI()
+
+_unitialised_client = None
+
+
+def _get_client() -> OpenAI:
+    """Return the module-level OpenAI client, creating it on first call.
+
+    Lazy initialisation prevents an OpenAIError at import time in
+    environments where OPENAI_API_KEY is not set (e.g. test CI).
+    Production code always calls send_prompt(), so the client is
+    still created exactly once and reused across requests.
+    """
+    global _unitialised_client
+    if _unitialised_client is None:
+        _unitialised_client = OpenAI()
+    return _unitialised_client
+
 
 T = TypeVar("T", bound=BaseModel)
 
@@ -34,6 +50,7 @@ def send_prompt(prompt: str, response_model: Type[T]) -> T:
         response_model.__name__,
     )
     start = time.monotonic()
+    client = _get_client()
     try:
         response = client.chat.completions.parse(
             model=MODEL_NAME,
@@ -79,7 +96,7 @@ def send_prompt(prompt: str, response_model: Type[T]) -> T:
     return response.choices[0].message.parsed
 
 
-def get_sentences_for_translation(words: list[str], hsk_level: int | None = None) -> str:
+def get_sentences_for_translation(words: list[str], hsk_level: int | None = None) -> SentencesResponse:
     logger.info(
         "get_sentences_for_translation: words=%s hsk_level=%s",
         words,
@@ -101,7 +118,7 @@ def get_sentences_for_translation(words: list[str], hsk_level: int | None = None
     return send_prompt(prompt, SentencesResponse)
 
 
-def evaluate_translations(data: SentenceTranslationsToEvaluate) -> str:
+def evaluate_translations(data: SentenceTranslationsToEvaluate) -> TranslationEvaluationResponse:
     logger.info(
         "evaluate_translations: translation_count=%d",
         len(data.translations),
@@ -110,7 +127,7 @@ def evaluate_translations(data: SentenceTranslationsToEvaluate) -> str:
     prompt_template = prompt_file.read_text(encoding="utf-8")
 
     items_text = "\n\n".join(
-        f'{i + 1}. Sentence: "{sentence}"\n'
+        f'{i + 1}. Sentence: "{item.sentence}"\n'
         f'User Translation: "{item.translation}"\n'
         f'Target Word: "{item.word}"'
         for i, item in enumerate(data.translations)
