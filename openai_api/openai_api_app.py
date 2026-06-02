@@ -7,7 +7,12 @@ from starlette.middleware.cors import CORSMiddleware
 from openai_api import openai_service
 from openai_api.auth.cognito import DailyDragonCognitoToken, cognito_auth
 from openai_api.logging_config import get_logger
-from openai_api.models import SentencesResponse, TranslationEvaluationResponse, SentenceTranslationsToEvaluate
+from openai_api.models import (
+    SentencesResponse,
+    TranslationEvaluationResponse,
+    SentenceTranslationsToEvaluate,
+    WordCardsResponse,
+)
 
 logger = get_logger(__name__)
 
@@ -59,4 +64,20 @@ def evaluate_translations(
     )
     result = openai_service.evaluate_translations(translations)
     logger.info("POST /practice/evaluate-translations user=%s completed", auth.sub)
+    return result
+
+
+@app.post("/daily-dragon/learning/word-cards", response_model=WordCardsResponse)
+def get_word_cards(
+    words_list: WordsList,
+    auth: DailyDragonCognitoToken = Depends(cognito_auth.auth_required),
+):
+    logger.info(
+        "POST /learning/word-cards user=%s word_count=%d hsk_level=%s",
+        auth.sub,
+        len(words_list.words),
+        words_list.hsk_level,
+    )
+    result = openai_service.get_word_cards(words_list.words, words_list.hsk_level)
+    logger.info("POST /learning/word-cards user=%s completed", auth.sub)
     return result
