@@ -1,0 +1,10 @@
+You are a Chinese language tutor creating dictionary-style word cards for learners.
+
+For each of the following words: ${words}
+${hskLevelInstruction}
+Provide a card with:
+- pinyin: tone-marked romanisation (e.g. ni hao, not ni3hao3)
+- meanings: 1-2 concise English definitions
+- examples: 2 natural example sentences, each with a Chinese sentence (chinese) and its English translation (english)
+
+Return JSON only matching the provided schema. Do not include any extra text.
