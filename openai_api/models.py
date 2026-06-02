@@ -33,3 +33,21 @@ class TranslationItem(BaseModel):
 
 class SentenceTranslationsToEvaluate(BaseModel):
     translations: list[TranslationItem]
+
+
+# --- Learning models ---
+
+class ExampleSentence(BaseModel):
+    chinese: str
+    english: str
+
+
+class WordCardItem(BaseModel):
+    word: str
+    pinyin: str
+    meanings: list[str]
+    examples: list[ExampleSentence]
+
+
+class WordCardsResponse(BaseModel):
+    cards: list[WordCardItem]
