@@ -71,13 +71,13 @@ def test_get_word_cards_without_hsk_level(client):
 
 
 def test_get_word_cards_empty_words(client):
-    response = client.post(
-        "/daily-dragon/learning/word-cards",
-        json={"words": []},
-    )
-    # FastAPI may reject an empty list or pass it through.
-    # Either way it should not crash with a 500.
-    assert response.status_code != 500
+    with patch.object(openai_service_module, "get_word_cards", return_value=WordCardsResponse(cards=[])):
+        response = client.post(
+            "/daily-dragon/learning/word-cards",
+            json={"words": []},
+        )
+    assert response.status_code == 200
+    assert response.json()["cards"] == []
 
 
 def test_get_word_cards_service_error(client):
