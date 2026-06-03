@@ -81,14 +81,14 @@ def test_send_prompt_reraises_unexpected_error():
 
 def test_get_client_returns_same_instance():
     """Lazy client is created once and reused."""
-    svc._unitialised_client = None
+    svc.client = None
     with patch("openai_api.openai_service.OpenAI") as mock_cls:
         mock_cls.return_value = MagicMock()
         c1 = svc._get_client()
         c2 = svc._get_client()
     assert c1 is c2
     mock_cls.assert_called_once()
-    svc._unitialised_client = None
+    svc.client = None
 
 
 # ------------------------------------------------

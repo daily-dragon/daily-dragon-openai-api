@@ -20,6 +20,6 @@ def dummy_auth():
 def client():
     app.dependency_overrides = dict()
     app.dependency_overrides[cognito_auth.auth_required] = lambda: dummy_auth()
-    c = TestClient(app)
+    c = TestClient(app, raise_server_exceptions=False)
     yield c
     app.dependency_overrides = {}
