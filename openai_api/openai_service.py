@@ -23,21 +23,14 @@ N = 5
 
 load_dotenv()
 
-_unitialised_client = None
+client = None
 
 
 def _get_client() -> OpenAI:
-    """Return the module-level OpenAI client, creating it on first call.
-
-    Lazy initialisation prevents an OpenAIError at import time in
-    environments where OPENAI_API_KEY is not set (e.g. test CI).
-    Production code always calls send_prompt(), so the client is
-    still created exactly once and reused across requests.
-    """
-    global _unitialised_client
-    if _unitialised_client is None:
-        _unitialised_client = OpenAI()
-    return _unitialised_client
+    global client
+    if client is None:
+        client = OpenAI()
+    return client
 
 
 T = TypeVar("T", bound=BaseModel)
