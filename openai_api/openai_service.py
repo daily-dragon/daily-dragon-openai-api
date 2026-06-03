@@ -7,7 +7,12 @@ from pydantic import BaseModel
 from typing import Type, TypeVar
 
 from openai_api.logging_config import get_logger
-from openai_api.models import SentencesResponse, TranslationEvaluationResponse, SentenceTranslationsToEvaluate
+from openai_api.models import (
+    SentencesResponse,
+    TranslationEvaluationResponse,
+    SentenceTranslationsToEvaluate,
+    WordCardsResponse,
+)
 
 logger = get_logger(__name__)
 
@@ -17,7 +22,16 @@ TARGET_LANGUAGE = "English"
 N = 5
 
 load_dotenv()
-client = OpenAI()
+
+client = None
+
+
+def _get_client() -> OpenAI:
+    global client
+    if client is None:
+        client = OpenAI()
+    return client
+
 
 T = TypeVar("T", bound=BaseModel)
 
@@ -29,6 +43,7 @@ def send_prompt(prompt: str, response_model: Type[T]) -> T:
         response_model.__name__,
     )
     start = time.monotonic()
+    client = _get_client()
     try:
         response = client.chat.completions.parse(
             model=MODEL_NAME,
@@ -74,7 +89,7 @@ def send_prompt(prompt: str, response_model: Type[T]) -> T:
     return response.choices[0].message.parsed
 
 
-def get_sentences_for_translation(words: list[str], hsk_level: int | None = None) -> str:
+def get_sentences_for_translation(words: list[str], hsk_level: int | None = None) -> SentencesResponse:
     logger.info(
         "get_sentences_for_translation: words=%s hsk_level=%s",
         words,
@@ -96,7 +111,7 @@ def get_sentences_for_translation(words: list[str], hsk_level: int | None = None
     return send_prompt(prompt, SentencesResponse)
 
 
-def evaluate_translations(data: SentenceTranslationsToEvaluate) -> str:
+def evaluate_translations(data: SentenceTranslationsToEvaluate) -> TranslationEvaluationResponse:
     logger.info(
         "evaluate_translations: translation_count=%d",
         len(data.translations),
@@ -113,3 +128,23 @@ def evaluate_translations(data: SentenceTranslationsToEvaluate) -> str:
 
     prompt = prompt_template.replace("${items}", items_text)
     return send_prompt(prompt, TranslationEvaluationResponse)
+
+
+def get_word_cards(words: list[str], hsk_level: int | None = None) -> WordCardsResponse:
+    logger.info(
+        "get_word_cards: words=%s hsk_level=%s",
+        words,
+        hsk_level,
+    )
+    prompt_file = PROMPTS_DIR / "get_word_cards"
+    prompt_template = prompt_file.read_text(encoding="utf-8")
+
+    hsk_instruction = (
+        f"The learner is at HSK level {hsk_level}. Keep example sentence vocabulary and grammar appropriate for that level.\n"
+        if hsk_level else ""
+    )
+
+    prompt = prompt_template.replace("${words}", ", ".join(words))
+    prompt = prompt.replace("${hskLevelInstruction}", hsk_instruction)
+
+    return send_prompt(prompt, WordCardsResponse)
