@@ -12,6 +12,7 @@ from openai_api.models import (
     TranslationEvaluationResponse,
     SentenceTranslationsToEvaluate,
     WordCardsResponse,
+    DeepPracticeResponse,
 )
 
 logger = get_logger(__name__)
@@ -33,6 +34,11 @@ app.add_middleware(
 
 class WordsList(BaseModel):
     words: list[str]
+    hsk_level: int | None = None
+
+
+class DeepPracticeRequest(BaseModel):
+    word: str
     hsk_level: int | None = None
 
 
@@ -80,4 +86,20 @@ def get_word_cards(
     )
     result = openai_service.get_word_cards(words_list.words, words_list.hsk_level)
     logger.info("POST /learning/word-cards user=%s completed", auth.sub)
+    return result
+
+
+@app.post("/daily-dragon/learning/deep-practice-sentences", response_model=DeepPracticeResponse)
+def get_deep_practice_sentences(
+    request: DeepPracticeRequest,
+    auth: DailyDragonCognitoToken = Depends(cognito_auth.auth_required),
+):
+    logger.info(
+        "POST /learning/deep-practice-sentences user=%s word=%s hsk_level=%s",
+        auth.sub,
+        request.word,
+        request.hsk_level,
+    )
+    result = openai_service.get_deep_practice_sentences(request.word, request.hsk_level)
+    logger.info("POST /learning/deep-practice-sentences user=%s completed", auth.sub)
     return result

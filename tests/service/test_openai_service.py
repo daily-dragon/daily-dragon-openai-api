@@ -11,6 +11,8 @@ from openai_api.models import (
     WordCardsResponse,
     WordCardItem,
     ExampleSentence,
+    DeepPracticeResponse,
+    DeepPracticeSentenceItem,
 )
 import openai_api.openai_service as svc
 
@@ -161,3 +163,35 @@ def test_get_word_cards_passes_correct_model():
         svc.get_word_cards(["\u597d"])
     _, model_arg = mock_send.call_args[0]
     assert model_arg is WordCardsResponse
+
+
+# ------------------------------------------------
+# get_deep_practice_sentences
+# ------------------------------------------------
+
+def test_get_deep_practice_sentences_calls_send_prompt():
+    expected = DeepPracticeResponse(sentences=[
+        DeepPracticeSentenceItem(sentence="I <love> reading.", usage_hint="as a verb")
+    ])
+    with patch.object(svc, "send_prompt", return_value=expected) as mock_send:
+        result = svc.get_deep_practice_sentences("\u7231", hsk_level=2)
+    assert result is expected
+    mock_send.assert_called_once()
+    prompt_arg, model_arg = mock_send.call_args[0]
+    assert "\u7231" in prompt_arg
+    assert "HSK level 2" in prompt_arg
+    assert model_arg is DeepPracticeResponse
+
+
+def test_get_deep_practice_sentences_no_hsk_level():
+    with patch.object(svc, "send_prompt", return_value=DeepPracticeResponse(sentences=[])) as mock_send:
+        svc.get_deep_practice_sentences("\u7231")
+    prompt_arg = mock_send.call_args[0][0]
+    assert "HSK" not in prompt_arg
+
+
+def test_get_deep_practice_sentences_passes_correct_model():
+    with patch.object(svc, "send_prompt", return_value=DeepPracticeResponse(sentences=[])) as mock_send:
+        svc.get_deep_practice_sentences("\u7231")
+    _, model_arg = mock_send.call_args[0]
+    assert model_arg is DeepPracticeResponse

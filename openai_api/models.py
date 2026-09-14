@@ -51,3 +51,14 @@ class WordCardItem(BaseModel):
 
 class WordCardsResponse(BaseModel):
     cards: list[WordCardItem]
+
+
+# --- Deep practice models ---
+
+class DeepPracticeSentenceItem(BaseModel):
+    sentence: str
+    usage_hint: str
+
+
+class DeepPracticeResponse(BaseModel):
+    sentences: list[DeepPracticeSentenceItem]

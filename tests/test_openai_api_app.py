@@ -12,6 +12,8 @@ from openai_api.models import (
     WordCardsResponse,
     WordCardItem,
     ExampleSentence,
+    DeepPracticeResponse,
+    DeepPracticeSentenceItem,
 )
 
 
@@ -147,5 +149,62 @@ def test_evaluate_translations_service_error(client):
         response = client.post(
             "/daily-dragon/practice/evaluate-translations",
             json={"translations": [{"word": "书", "sentence": "s", "translation": "t"}]},
+        )
+    assert response.status_code == 500
+
+
+# ------------------------------------------------
+# deep-practice-sentences
+# ------------------------------------------------
+
+def make_deep_practice_response():
+    return DeepPracticeResponse(
+        sentences=[
+            DeepPracticeSentenceItem(sentence="I <love> reading.", usage_hint="as a verb"),
+            DeepPracticeSentenceItem(sentence="Her <love> for music is clear.", usage_hint="as a noun"),
+        ]
+    )
+
+
+def test_get_deep_practice_sentences_success(client):
+    with patch.object(openai_service_module, "get_deep_practice_sentences", return_value=make_deep_practice_response()):
+        response = client.post(
+            "/daily-dragon/learning/deep-practice-sentences",
+            json={"word": "爱"},
+        )
+    assert response.status_code == 200
+    data = response.json()
+    assert "sentences" in data
+    assert len(data["sentences"]) == 2
+    assert data["sentences"][0]["usage_hint"] == "as a verb"
+
+
+def test_get_deep_practice_sentences_with_hsk_level(client):
+    with patch.object(openai_service_module, "get_deep_practice_sentences") as mock_fn:
+        mock_fn.return_value = make_deep_practice_response()
+        client.post(
+            "/daily-dragon/learning/deep-practice-sentences",
+            json={"word": "爱", "hsk_level": 3},
+        )
+        mock_fn.assert_called_once_with("爱", 3)
+
+
+def test_get_deep_practice_sentences_without_hsk_level(client):
+    with patch.object(openai_service_module, "get_deep_practice_sentences") as mock_fn:
+        mock_fn.return_value = make_deep_practice_response()
+        client.post(
+            "/daily-dragon/learning/deep-practice-sentences",
+            json={"word": "爱"},
+        )
+        mock_fn.assert_called_once_with("爱", None)
+
+
+def test_get_deep_practice_sentences_service_error(client):
+    with patch.object(
+        openai_service_module, "get_deep_practice_sentences", side_effect=Exception("OpenAI failed")
+    ):
+        response = client.post(
+            "/daily-dragon/learning/deep-practice-sentences",
+            json={"word": "爱"},
         )
     assert response.status_code == 500

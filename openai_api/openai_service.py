@@ -12,6 +12,7 @@ from openai_api.models import (
     TranslationEvaluationResponse,
     SentenceTranslationsToEvaluate,
     WordCardsResponse,
+    DeepPracticeResponse,
 )
 
 logger = get_logger(__name__)
@@ -128,6 +129,27 @@ def evaluate_translations(data: SentenceTranslationsToEvaluate) -> TranslationEv
 
     prompt = prompt_template.replace("${items}", items_text)
     return send_prompt(prompt, TranslationEvaluationResponse)
+
+
+def get_deep_practice_sentences(word: str, hsk_level: int | None = None) -> DeepPracticeResponse:
+    logger.info(
+        "get_deep_practice_sentences: word=%s hsk_level=%s",
+        word,
+        hsk_level,
+    )
+    prompt_file = PROMPTS_DIR / "get_deep_practice_sentences"
+    prompt_template = prompt_file.read_text(encoding="utf-8")
+
+    hsk_instruction = (
+        f"Keep surrounding vocabulary and grammar complexity appropriate for HSK level {hsk_level}.\n"
+        if hsk_level else ""
+    )
+
+    prompt = prompt_template.replace("${word}", word)
+    prompt = prompt.replace("${n}", str(N))
+    prompt = prompt.replace("${hskLevelInstruction}", hsk_instruction)
+
+    return send_prompt(prompt, DeepPracticeResponse)
 
 
 def get_word_cards(words: list[str], hsk_level: int | None = None) -> WordCardsResponse:
