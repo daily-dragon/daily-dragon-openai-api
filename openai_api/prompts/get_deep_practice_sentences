@@ -1,6 +1,6 @@
-Generate ${n} short, natural English sentences using the Chinese word ${word}.
+Generate ${n} short, natural English sentences for the Chinese word ${word}.
 ${hskLevelInstruction}
-Each sentence must use the word in a distinct grammatical role, meaning, or context.
-Aim for variety: for example, as a verb, as a noun, in a question, in a negative sentence, with a complement, or where the word carries a different shade of meaning.
+For each sentence: choose a distinct grammatical role, meaning, or context for the word (e.g. as a verb, as a noun, in a question, in a negative sentence, with a complement, or a different shade of meaning).
+Write the sentence entirely in English — do not insert any Chinese characters.
+Find the natural English equivalent of ${word} in that specific context and enclose it in < >.
 For each sentence, provide a brief usage_hint (2–4 words, e.g. "as a verb", "negative form", "with complement") that labels the specific angle being practiced.
-Enclose the translated target word in < >.
