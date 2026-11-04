@@ -14,6 +14,7 @@ from openai_api.models import (
     ExampleSentence,
     DeepPracticeResponse,
     DeepPracticeSentenceItem,
+    ListeningTextResponse,
 )
 
 
@@ -208,3 +209,60 @@ def test_get_deep_practice_sentences_service_error(client):
             json={"word": "爱"},
         )
     assert response.status_code == 500
+
+
+def test_get_listening_text_success(client):
+    with patch.object(openai_service_module, "get_listening_text", return_value=ListeningTextResponse(text="今天天气很好。")):
+        response = client.post(
+            "/daily-dragon/listening/text",
+            json={"words": ["天气", "今天"], "hsk_level": 2, "size": "short"},
+        )
+    assert response.status_code == 200
+    assert response.json()["text"] == "今天天气很好。"
+
+
+def test_get_listening_text_default_size(client):
+    with patch.object(openai_service_module, "get_listening_text") as mock_fn:
+        mock_fn.return_value = ListeningTextResponse(text="...")
+        client.post(
+            "/daily-dragon/listening/text",
+            json={"words": ["天气"]},
+        )
+        mock_fn.assert_called_once_with(["天气"], None, "medium")
+
+
+def test_get_listening_text_with_hsk_level(client):
+    with patch.object(openai_service_module, "get_listening_text") as mock_fn:
+        mock_fn.return_value = ListeningTextResponse(text="...")
+        client.post(
+            "/daily-dragon/listening/text",
+            json={"words": ["天气"], "hsk_level": 3, "size": "long"},
+        )
+        mock_fn.assert_called_once_with(["天气"], 3, "long")
+
+
+def test_get_listening_text_service_error(client):
+    with patch.object(
+        openai_service_module, "get_listening_text", side_effect=Exception("OpenAI failed")
+    ):
+        response = client.post(
+            "/daily-dragon/listening/text",
+            json={"words": ["天气"]},
+        )
+    assert response.status_code == 500
+
+
+def test_get_listening_text_invalid_size(client):
+    response = client.post(
+        "/daily-dragon/listening/text",
+        json={"words": ["天气"], "size": "huge"},
+    )
+    assert response.status_code == 422
+
+
+def test_get_listening_text_empty_words(client):
+    response = client.post(
+        "/daily-dragon/listening/text",
+        json={"words": []},
+    )
+    assert response.status_code == 422

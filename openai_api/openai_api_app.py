@@ -1,18 +1,21 @@
 import time
 
 from fastapi import FastAPI, Depends
-from pydantic import BaseModel
 from starlette.middleware.cors import CORSMiddleware
 
 from openai_api import openai_service
 from openai_api.auth.cognito import DailyDragonCognitoToken, cognito_auth
 from openai_api.logging_config import get_logger
 from openai_api.models import (
+    WordsList,
+    DeepPracticeRequest,
+    ListeningTextRequest,
     SentencesResponse,
     TranslationEvaluationResponse,
     SentenceTranslationsToEvaluate,
     WordCardsResponse,
     DeepPracticeResponse,
+    ListeningTextResponse,
 )
 
 logger = get_logger(__name__)
@@ -31,15 +34,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
-class WordsList(BaseModel):
-    words: list[str]
-    hsk_level: int | None = None
-
-
-class DeepPracticeRequest(BaseModel):
-    word: str
-    hsk_level: int | None = None
 
 
 @app.post("/daily-dragon/practice/sentences", response_model=SentencesResponse)
@@ -102,4 +96,21 @@ def get_deep_practice_sentences(
     )
     result = openai_service.get_deep_practice_sentences(request.word, request.hsk_level)
     logger.info("POST /learning/deep-practice-sentences user=%s completed", auth.sub)
+    return result
+
+
+@app.post("/daily-dragon/listening/text", response_model=ListeningTextResponse)
+def get_listening_text(
+    request: ListeningTextRequest,
+    auth: DailyDragonCognitoToken = Depends(cognito_auth.auth_required),
+):
+    logger.info(
+        "POST /listening/text user=%s word_count=%d hsk_level=%s size=%s",
+        auth.sub,
+        len(request.words),
+        request.hsk_level,
+        request.size,
+    )
+    result = openai_service.get_listening_text(request.words, request.hsk_level, request.size)
+    logger.info("POST /listening/text user=%s completed", auth.sub)
     return result

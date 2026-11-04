@@ -1,4 +1,24 @@
-from pydantic import BaseModel
+from typing import Annotated, Literal
+
+from pydantic import BaseModel, Field
+
+ListeningTextSize = Literal["short", "medium", "long"]
+
+
+class WordsList(BaseModel):
+    words: list[str]
+    hsk_level: int | None = None
+
+
+class DeepPracticeRequest(BaseModel):
+    word: str
+    hsk_level: int | None = None
+
+
+class ListeningTextRequest(BaseModel):
+    words: Annotated[list[str], Field(min_length=1)]
+    hsk_level: int | None = None
+    size: ListeningTextSize = "medium"
 
 
 class SentenceItem(BaseModel):
@@ -35,8 +55,6 @@ class SentenceTranslationsToEvaluate(BaseModel):
     translations: list[TranslationItem]
 
 
-# --- Learning models ---
-
 class ExampleSentence(BaseModel):
     chinese: str
     english: str
@@ -53,8 +71,6 @@ class WordCardsResponse(BaseModel):
     cards: list[WordCardItem]
 
 
-# --- Deep practice models ---
-
 class DeepPracticeSentenceItem(BaseModel):
     sentence: str
     usage_hint: str
@@ -62,3 +78,7 @@ class DeepPracticeSentenceItem(BaseModel):
 
 class DeepPracticeResponse(BaseModel):
     sentences: list[DeepPracticeSentenceItem]
+
+
+class ListeningTextResponse(BaseModel):
+    text: str

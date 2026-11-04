@@ -13,6 +13,8 @@ from openai_api.models import (
     SentenceTranslationsToEvaluate,
     WordCardsResponse,
     DeepPracticeResponse,
+    ListeningTextResponse,
+    ListeningTextSize,
 )
 
 logger = get_logger(__name__)
@@ -90,6 +92,12 @@ def send_prompt(prompt: str, response_model: Type[T]) -> T:
     return response.choices[0].message.parsed
 
 
+def _hsk_instruction(hsk_level: int | None) -> str:
+    if hsk_level is None:
+        return ""
+    return f"Keep surrounding vocabulary and grammar complexity appropriate for HSK level {hsk_level}.\n"
+
+
 def get_sentences_for_translation(words: list[str], hsk_level: int | None = None) -> SentencesResponse:
     logger.info(
         "get_sentences_for_translation: words=%s hsk_level=%s",
@@ -99,15 +107,10 @@ def get_sentences_for_translation(words: list[str], hsk_level: int | None = None
     prompt_file = PROMPTS_DIR / "get_sentences_for_translation"
     prompt_template = prompt_file.read_text(encoding="utf-8")
 
-    hsk_instruction = (
-        f"Keep surrounding vocabulary and grammar complexity appropriate for HSK level {hsk_level}.\n"
-        if hsk_level else ""
-    )
-
     prompt = prompt_template.replace("${words}", ", ".join(words))
     prompt = prompt.replace("${n}", str(N))
     prompt = prompt.replace("${targetLanguage}", TARGET_LANGUAGE)
-    prompt = prompt.replace("${hskLevelInstruction}", hsk_instruction)
+    prompt = prompt.replace("${hskLevelInstruction}", _hsk_instruction(hsk_level))
 
     return send_prompt(prompt, SentencesResponse)
 
@@ -140,16 +143,35 @@ def get_deep_practice_sentences(word: str, hsk_level: int | None = None) -> Deep
     prompt_file = PROMPTS_DIR / "get_deep_practice_sentences"
     prompt_template = prompt_file.read_text(encoding="utf-8")
 
-    hsk_instruction = (
-        f"Keep surrounding vocabulary and grammar complexity appropriate for HSK level {hsk_level}.\n"
-        if hsk_level else ""
-    )
-
     prompt = prompt_template.replace("${word}", word)
     prompt = prompt.replace("${n}", str(N))
-    prompt = prompt.replace("${hskLevelInstruction}", hsk_instruction)
+    prompt = prompt.replace("${hskLevelInstruction}", _hsk_instruction(hsk_level))
 
     return send_prompt(prompt, DeepPracticeResponse)
+
+
+_LISTENING_CHAR_RANGES = {
+    "short": "80–120",
+    "medium": "180–250",
+    "long": "350–450",
+}
+
+
+def get_listening_text(words: list[str], hsk_level: int | None, size: ListeningTextSize) -> ListeningTextResponse:
+    logger.info(
+        "get_listening_text: word_count=%d hsk_level=%s size=%s",
+        len(words),
+        hsk_level,
+        size,
+    )
+    prompt_file = PROMPTS_DIR / "get_listening_text"
+    prompt_template = prompt_file.read_text(encoding="utf-8")
+
+    prompt = prompt_template.replace("${words}", ", ".join(words))
+    prompt = prompt.replace("${hskLevelInstruction}", _hsk_instruction(hsk_level))
+    prompt = prompt.replace("${charRange}", _LISTENING_CHAR_RANGES[size])
+
+    return send_prompt(prompt, ListeningTextResponse)
 
 
 def get_word_cards(words: list[str], hsk_level: int | None = None) -> WordCardsResponse:
@@ -165,7 +187,6 @@ def get_word_cards(words: list[str], hsk_level: int | None = None) -> WordCardsR
         f"The learner is at HSK level {hsk_level}. Keep example sentence vocabulary and grammar appropriate for that level.\n"
         if hsk_level else ""
     )
-
     prompt = prompt_template.replace("${words}", ", ".join(words))
     prompt = prompt.replace("${hskLevelInstruction}", hsk_instruction)
 

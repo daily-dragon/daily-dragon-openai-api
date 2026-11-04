@@ -13,6 +13,7 @@ from openai_api.models import (
     ExampleSentence,
     DeepPracticeResponse,
     DeepPracticeSentenceItem,
+    ListeningTextResponse,
 )
 import openai_api.openai_service as svc
 
@@ -106,6 +107,7 @@ def test_get_sentences_for_translation_calls_send_prompt():
     prompt_arg, model_arg = mock_send.call_args[0]
     assert "word1" in prompt_arg
     assert "HSK level 2" in prompt_arg
+    assert "surrounding" in prompt_arg
     assert model_arg is SentencesResponse
 
 
@@ -148,6 +150,7 @@ def test_get_word_cards_calls_send_prompt():
     prompt_arg, model_arg = mock_send.call_args[0]
     assert "\u597d" in prompt_arg
     assert "HSK level 1" in prompt_arg
+    assert "example sentence" in prompt_arg
     assert model_arg is WordCardsResponse
 
 
@@ -195,3 +198,38 @@ def test_get_deep_practice_sentences_passes_correct_model():
         svc.get_deep_practice_sentences("\u7231")
     _, model_arg = mock_send.call_args[0]
     assert model_arg is DeepPracticeResponse
+
+
+def test_get_listening_text_calls_send_prompt():
+    expected = ListeningTextResponse(text="\u4eca\u5929\u5929\u6c14\u5f88\u597d\u3002")
+    with patch.object(svc, "send_prompt", return_value=expected) as mock_send:
+        result = svc.get_listening_text(["\u5929\u6c14", "\u4eca\u5929"], hsk_level=2, size="short")
+    assert result is expected
+    mock_send.assert_called_once()
+    prompt_arg, model_arg = mock_send.call_args[0]
+    assert "\u5929\u6c14" in prompt_arg
+    assert "80\u2013120" in prompt_arg
+    assert "HSK level 2" in prompt_arg
+    assert model_arg is ListeningTextResponse
+
+
+def test_get_listening_text_no_hsk_level():
+    with patch.object(svc, "send_prompt", return_value=ListeningTextResponse(text="...")) as mock_send:
+        svc.get_listening_text(["\u5929\u6c14"], hsk_level=None, size="medium")
+    prompt_arg = mock_send.call_args[0][0]
+    assert "HSK" not in prompt_arg
+
+
+def test_get_listening_text_size_char_ranges():
+    for size, expected_range in [("short", "80\u2013120"), ("medium", "180\u2013250"), ("long", "350\u2013450")]:
+        with patch.object(svc, "send_prompt", return_value=ListeningTextResponse(text="...")) as mock_send:
+            svc.get_listening_text(["\u5929\u6c14"], hsk_level=None, size=size)
+        prompt_arg = mock_send.call_args[0][0]
+        assert expected_range in prompt_arg
+
+
+def test_get_listening_text_passes_correct_model():
+    with patch.object(svc, "send_prompt", return_value=ListeningTextResponse(text="...")) as mock_send:
+        svc.get_listening_text(["\u5929\u6c14"], hsk_level=None, size="medium")
+    _, model_arg = mock_send.call_args[0]
+    assert model_arg is ListeningTextResponse
