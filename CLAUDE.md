@@ -18,3 +18,6 @@ pytest openai_api/tests/
 ## Patterns
 - Add new endpoints in `openai_api_app.py`, service logic in `openai_service.py`, models in `models.py`
 - New LLM prompts go in `openai_api/prompts/` as plain text files with `${variable}` placeholders
+
+## Planned improvements
+- **Split system/user messages in `send_prompt`**: static instructions belong in a system message, dynamic content (word lists, level) in the user message. Benefits: OpenAI prompt caching hits the stable system prefix, and GPT-4o follows system-level instructions more reliably. When doing this refactor, also switch prompt variable substitution from manual `.replace()` chains to `string.Template.substitute()` — same `${variable}` syntax, but raises on missing/misspelled placeholders instead of silently passing a broken prompt.

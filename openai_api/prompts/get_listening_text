@@ -1,0 +1,10 @@
+Write a natural, coherent Chinese passage for a language learner.
+
+Word list (use loosely as thematic inspiration — no obligation to include every word): ${words}
+${hskLevelInstruction}Target length: ${charRange} Chinese characters.
+
+Requirements:
+- Write only the passage — no English, no pinyin, no commentary, no title
+- Choose whichever form (monologue, dialogue, narrative, etc.) produces the most natural result
+- The passage must be coherent and self-contained, not a list of disconnected sentences
+- Incorporate words from the list only where they fit naturally
