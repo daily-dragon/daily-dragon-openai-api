@@ -20,7 +20,7 @@ from openai_api.models import (
 logger = get_logger(__name__)
 
 PROMPTS_DIR = Path(__file__).parent / "prompts"
-MODEL_NAME = "gpt-6-luna"
+MODEL_NAME = "gpt-6.1-terra"
 TARGET_LANGUAGE = "English"
 N = 5
 
